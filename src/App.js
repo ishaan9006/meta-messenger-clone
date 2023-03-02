@@ -6,7 +6,7 @@ import db from './Firebase/firebase';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-
+import FlipMove from "react-flip-move";
 
 function App() {
   const [input, setInput] = useState('');
@@ -16,7 +16,7 @@ function App() {
 
   useEffect(() => {
     db.collection('messages').onSnapshot(snapshot => {
-      setMessages(snapshot.docs.map(doc => doc.data()));
+      setMessages(snapshot.docs.map(doc => ({id: doc.id, message: doc.data()})));
     })
   }, []);
 
@@ -39,19 +39,24 @@ function App() {
     <div className="App">
       <h1>{userName}</h1>
 
+      <form>
+        <FormControl>
+          <InputLabel>Enter Message</InputLabel>
+          <Input value={input} onChange={event => setInput(event.target.value)} />
+          <Button disabled={!input} variant='contained' color='primary' type='submit' onClick={sendMessage}>Send Message</Button>
+        </FormControl>
+      </form>
 
-      <FormControl>
-        <InputLabel>Enter Message</InputLabel>
-        <Input value={input} onChange={event => setInput(event.target.value)} />
-        <Button disabled={!input} variant='contained' color='primary' type='submit' onClick={sendMessage}>Send Message</Button>
-      </FormControl>
+      <FlipMove>
+        {
+          messages.map(({id, message}) => (
+            <Message key={id} username={userName} message={message}/>
+          ))
+        } 
+      </FlipMove>
 
+        
 
-      {
-        messages.map(message => (
-          <Message username={userName} message={message}/>
-        ))
-      } 
 
     </div>
   );
